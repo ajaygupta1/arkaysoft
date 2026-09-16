@@ -11,7 +11,7 @@
 (function () {
   "use strict";
 
-  var GA_MEASUREMENT_ID = "G-XXXXXXXXXX"; // <-- replace with your GA4 ID
+  var GA_MEASUREMENT_ID = "G-E0M51V9SB6"; // GA4 Measurement ID for arkaysoft.com
   var STORAGE_KEY = "arkay-cookie-consent"; // "granted" | "denied"
 
   // Guard: do nothing until a real Measurement ID is configured.
