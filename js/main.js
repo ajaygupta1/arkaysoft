@@ -157,7 +157,7 @@
 
     // Enquiries are delivered here via the FormSubmit service (no backend
     // needed for this static site). Change the address to reroute enquiries.
-    var FORM_ENDPOINT = "https://formsubmit.co/ajax/hello@arkaysoft.com";
+    var FORM_ENDPOINT = "https://formsubmit.co/ajax/support@arkaysoft.com";
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -206,11 +206,11 @@
             );
             form.reset();
           } else {
-            showStatus(status, "Sorry, something went wrong. Please email us directly at hello@arkaysoft.com.", false);
+            showStatus(status, "Sorry, something went wrong. Please email us directly at support@arkaysoft.com.", false);
           }
         })
         .catch(function () {
-          showStatus(status, "We couldn't send your enquiry — please check your connection or email hello@arkaysoft.com.", false);
+          showStatus(status, "We couldn't send your enquiry — please check your connection or email support@arkaysoft.com.", false);
         })
         .then(function () { setLoading(submitBtn, false); });
     });
