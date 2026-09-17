@@ -153,6 +153,11 @@
     var form = document.querySelector("#contact-form");
     if (!form) return;
     var status = form.querySelector(".form-status");
+    var submitBtn = form.querySelector('button[type="submit"]');
+
+    // Enquiries are delivered here via the FormSubmit service (no backend
+    // needed for this static site). Change the address to reroute enquiries.
+    var FORM_ENDPOINT = "https://formsubmit.co/ajax/hello@arkaysoft.com";
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -169,22 +174,72 @@
         return showStatus(status, "Please enter a valid email address.", false);
       }
 
-      // Simulate a successful submission (static site — no server).
-      showStatus(
-        status,
-        "Thank you, " + name.value.trim() + "! Your enquiry has been received. Our team will respond within one business day.",
-        true
-      );
-      form.reset();
+      // Honeypot: hidden field only bots fill in — silently drop if present.
+      var honey = form.querySelector('input[name="_honey"]');
+      if (honey && honey.value) { form.reset(); return; }
+
+      var payload = {
+        name: name.value.trim(),
+        email: email.value.trim(),
+        company: val(form, "#company"),
+        interest: val(form, "#interest"),
+        message: message.value.trim(),
+        _subject: "New enquiry from arkaysoft.com",
+        _template: "table"
+      };
+
+      setLoading(submitBtn, true);
+      showStatus(status, "Sending your enquiry…", true);
+
+      fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.ok; })
+        .then(function (ok) {
+          if (ok) {
+            showStatus(
+              status,
+              "Thank you, " + payload.name + "! Your enquiry has been received. Our team will respond within one business day.",
+              true
+            );
+            form.reset();
+          } else {
+            showStatus(status, "Sorry, something went wrong. Please email us directly at hello@arkaysoft.com.", false);
+          }
+        })
+        .catch(function () {
+          showStatus(status, "We couldn't send your enquiry — please check your connection or email hello@arkaysoft.com.", false);
+        })
+        .then(function () { setLoading(submitBtn, false); });
     });
+  }
+
+  function val(form, sel) {
+    var el = form.querySelector(sel);
+    return el ? el.value.trim() : "";
+  }
+
+  function setLoading(btn, loading) {
+    if (!btn) return;
+    if (loading) {
+      if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      btn.style.opacity = "0.75";
+      btn.style.cursor = "wait";
+    } else {
+      btn.disabled = false;
+      if (btn.dataset.label) btn.textContent = btn.dataset.label;
+      btn.style.opacity = "";
+      btn.style.cursor = "";
+    }
   }
 
   function showStatus(el, msg, ok) {
     if (!el) return;
     el.textContent = msg;
     el.className = "form-status show " + (ok ? "ok" : "err");
-    if (ok) {
-      setTimeout(function () { el.classList.remove("show"); }, 9000);
-    }
   }
 })();
